@@ -41,7 +41,8 @@ class ViewController: UICollectionViewController {
     }
     
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let person = people[indexPath.item] // works because it's instance of the class
+        
+        let person = people[indexPath.item] // "let" works because it's instance of the class
         let alertController = UIAlertController(title: "Rename", message: nil, preferredStyle: .alert)
         alertController.addTextField()
 
@@ -59,21 +60,22 @@ class ViewController: UICollectionViewController {
     }
 }
 
-// to be delegate view controller must conform these two protocols
-extension ViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+extension ViewController: UINavigationControllerDelegate {
+    // to be delegate view controller must conform navigation controller delegate in order to work with picker controller
+}
+
+
+extension ViewController: UIImagePickerControllerDelegate {
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        // extract image from dictionary that is passed as a parameter - apple's common practice to send dictinary as a parameter with some value, need to know key to get the values from it
-        // generate a unique filename for it
-        // convert it to a jpeg, then write that jpeg to disk
-        // dismiss the view controller
         
         guard let image = info[.editedImage] as? UIImage else { return }
         let imageName = UUID().uuidString
         let imagePath = getDocumentDirectory().appendingPathComponent(imageName)
         
-        if let data = image.jpegData(compressionQuality: 0.8) {
-            try? data.write(to: imagePath)
+        if let jpegData = image.jpegData(compressionQuality: 0.8) {
+            // do-catch
+            try? jpegData.write(to: imagePath)
         }
         
         let person = Person(name: "Unknown", image: imageName)
@@ -81,7 +83,7 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
         
         collectionView.reloadData()
         
-        dismiss(animated: true, completion: nil)
+        dismiss(animated: true, completion: nil) // dismisses the top most vc
     }
     
     func getDocumentDirectory() -> URL {
